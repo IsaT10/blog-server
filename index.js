@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 const app = express();
 require('dotenv').config();
@@ -38,6 +38,27 @@ app.get('/', (req, res) => {
 
 app.get('/api/blogs', async (req, res) => {
   const result = await blogsCollection.find().toArray();
+  res.send(result);
+});
+
+app.get('/api/blogs/category/:categoryName', async (req, res) => {
+  const { categoryName } = req.params;
+  const query = { category: categoryName };
+  //   console.log(category);
+  const result = await blogsCollection.find(query).toArray();
+  res.send(result);
+});
+
+app.get('/api/blogs/:id', async (req, res) => {
+  const { id } = req.params;
+  const query = { _id: new ObjectId(id) };
+  const result = await blogsCollection.findOne(query);
+  res.send(result);
+});
+
+app.post('/api/blogs', async (req, res) => {
+  const data = req.body;
+  const result = await blogsCollection.insertOne(data);
   res.send(result);
 });
 

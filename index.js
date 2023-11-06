@@ -22,6 +22,7 @@ const client = new MongoClient(uri, {
 
 const blogsCollection = client.db('blogDB').collection('blogs');
 const wishlistCollection = client.db('blogDB').collection('wishlist');
+const commentCollection = client.db('blogDB').collection('comment');
 
 async function run() {
   try {
@@ -37,10 +38,14 @@ app.get('/', (req, res) => {
   res.send('blog server is running');
 });
 
+// get all blogs
+
 app.get('/api/blogs', async (req, res) => {
   const result = await blogsCollection.find().toArray();
   res.send(result);
 });
+
+// get specific category blog
 
 app.get('/api/blogs/category/:categoryName', async (req, res) => {
   const { categoryName } = req.params;
@@ -49,6 +54,8 @@ app.get('/api/blogs/category/:categoryName', async (req, res) => {
   res.send(result);
 });
 
+// get specific blog
+
 app.get('/api/blogs/:id', async (req, res) => {
   const { id } = req.params;
   const query = { _id: new ObjectId(id) };
@@ -56,11 +63,15 @@ app.get('/api/blogs/:id', async (req, res) => {
   res.send(result);
 });
 
+//post blog
+
 app.post('/api/blogs', async (req, res) => {
   const data = req.body;
   const result = await blogsCollection.insertOne(data);
   res.send(result);
 });
+
+// get wishlist by user email
 
 app.get('/api/blog/wishlist', async (req, res) => {
   const email = req.query.email;
@@ -74,10 +85,14 @@ app.get('/api/blog/wishlist', async (req, res) => {
   res.send(result);
 });
 
+// get all wishlist
+
 app.get('/api/blog/wishlists', async (req, res) => {
   const result = await wishlistCollection.find().toArray();
   res.send(result);
 });
+
+// delete wishlist
 
 app.delete('/api/blog/wishlists/:id', async (req, res) => {
   const { id } = req.params;
@@ -86,9 +101,19 @@ app.delete('/api/blog/wishlists/:id', async (req, res) => {
   res.send(result);
 });
 
+// post wishlist
+
 app.post('/api/blog/wishlist', async (req, res) => {
   const data = req.body;
   const result = await wishlistCollection.insertOne(data);
+  res.send(result);
+});
+
+//post comment
+
+app.post('/api/blog/comment', async (req, res) => {
+  const data = req.body;
+  const result = await commentCollection.insertOne(data);
   res.send(result);
 });
 

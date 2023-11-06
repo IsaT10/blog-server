@@ -21,6 +21,7 @@ const client = new MongoClient(uri, {
 });
 
 const blogsCollection = client.db('blogDB').collection('blogs');
+const wishlistCollection = client.db('blogDB').collection('wishlist');
 
 async function run() {
   try {
@@ -44,7 +45,6 @@ app.get('/api/blogs', async (req, res) => {
 app.get('/api/blogs/category/:categoryName', async (req, res) => {
   const { categoryName } = req.params;
   const query = { category: categoryName };
-  //   console.log(category);
   const result = await blogsCollection.find(query).toArray();
   res.send(result);
 });
@@ -59,6 +59,17 @@ app.get('/api/blogs/:id', async (req, res) => {
 app.post('/api/blogs', async (req, res) => {
   const data = req.body;
   const result = await blogsCollection.insertOne(data);
+  res.send(result);
+});
+
+app.get('/api/blog/wishlist', async (req, res) => {
+  const result = await wishlistCollection.find().toArray();
+  res.send(result);
+});
+
+app.post('/api/blog/wishlist', async (req, res) => {
+  const data = req.body;
+  const result = await wishlistCollection.insertOne(data);
   res.send(result);
 });
 

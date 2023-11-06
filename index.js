@@ -71,6 +71,28 @@ app.post('/api/blogs', async (req, res) => {
   res.send(result);
 });
 
+//update blog
+
+app.put('/api/blogs/:id', async (req, res) => {
+  const { id } = req.params;
+  const query = { _id: new ObjectId(id) };
+  const options = { upsert: true };
+  const updateBlog = req.body;
+  const blog = {
+    $set: {
+      title: updateBlog.title,
+      short_description: updateBlog.short_description,
+      long_description: updateBlog.long_description,
+      category: updateBlog.category,
+      date: updateBlog.date,
+      image: updateBlog.image,
+    },
+  };
+  console.log(updateBlog);
+  const result = await blogsCollection.updateOne(query, blog, options);
+  res.send(result);
+});
+
 // get wishlist by user email
 
 app.get('/api/blog/wishlist', async (req, res) => {
@@ -106,6 +128,22 @@ app.delete('/api/blog/wishlists/:id', async (req, res) => {
 app.post('/api/blog/wishlist', async (req, res) => {
   const data = req.body;
   const result = await wishlistCollection.insertOne(data);
+  res.send(result);
+});
+
+//get comment
+
+app.get('/api/blog/comment', async (req, res) => {
+  const result = await commentCollection.find().toArray();
+  res.send(result);
+});
+
+//get specific blog comment
+
+app.get('/api/blog/comment/:blogId', async (req, res) => {
+  const { blogId } = req.params;
+  const query = { blogId: blogId };
+  const result = await commentCollection.find(query).toArray();
   res.send(result);
 });
 

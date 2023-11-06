@@ -63,7 +63,26 @@ app.post('/api/blogs', async (req, res) => {
 });
 
 app.get('/api/blog/wishlist', async (req, res) => {
+  const email = req.query.email;
+  let query = {};
+  if (email) {
+    query = {
+      email,
+    };
+  }
+  const result = await wishlistCollection.find(query).toArray();
+  res.send(result);
+});
+
+app.get('/api/blog/wishlists', async (req, res) => {
   const result = await wishlistCollection.find().toArray();
+  res.send(result);
+});
+
+app.delete('/api/blog/wishlists/:id', async (req, res) => {
+  const { id } = req.params;
+  const query = { _id: new ObjectId(id) };
+  const result = await wishlistCollection.deleteOne(query);
   res.send(result);
 });
 

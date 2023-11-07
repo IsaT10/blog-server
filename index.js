@@ -131,7 +131,7 @@ app.post('/api/blog/wishlist', async (req, res) => {
   res.send(result);
 });
 
-//get comment
+//get comment data
 
 app.get('/api/blog/comment', async (req, res) => {
   const result = await commentCollection.find().toArray();

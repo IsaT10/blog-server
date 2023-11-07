@@ -138,8 +138,6 @@ app.get('/api/blog/comment', async (req, res) => {
   res.send(result);
 });
 
-//get specific blog comment
-
 app.get('/api/blog/comment/:blogId', async (req, res) => {
   const { blogId } = req.params;
   const query = { blogId: blogId };

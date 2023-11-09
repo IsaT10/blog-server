@@ -1,14 +1,21 @@
 const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const app = express();
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 
 app.use(cors());
+// app.use(
+//   cors({
+//     origin: ['http://localhost:5173'],
+//     credentials: true,
+//   })
+// );
 app.use(express.json());
-
-//blogDb  g5ozt8dTGWj31h76
+app.use(cookieParser());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kfd97zi.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -33,6 +40,49 @@ async function run() {
   }
 }
 run().catch(console.dir);
+
+// const logger = (req, res, next) => {
+//   //   console.log('log info', req.method, req.url);
+//   next();
+// };
+
+const verifyToken = (req, res, next) => {
+  const token = req.cookies?.token;
+  console.log('in middleware', token);
+
+  if (!token) {
+    return res.status(401).send({ message: 'Unauthorized user' });
+  }
+
+  jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ message: 'Unauthorized user' });
+    }
+    req.user = decoded;
+
+    next();
+  });
+};
+
+// const verifyToken = (req, res, next) => {
+//   const token = req.cookies.token;
+
+//   //   console.log('tokennnn', token);
+
+//   if (!token) {
+//     return res.send({ message: 'You are not authorized' });
+//   }
+//   jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+//     if (err) {
+//       return res.send({ message: 'You are not authorized' });
+//     }
+
+//     req.user = decoded;
+//     console.log(decoded);
+
+//     next();
+//   });
+// };
 
 app.get('/', (req, res) => {
   res.send('blog server is running');
@@ -96,11 +146,25 @@ app.put('/api/blogs/:id', async (req, res) => {
 // get wishlist by user email
 
 app.get('/api/blog/wishlist', async (req, res) => {
-  const email = req.query.email;
+  const userEmail = req.query?.email;
+  console.log(userEmail);
+  //   console.log('cock', req.cookies);
+  //   console.log('owner', req.user);
+
+  //   if (req.user.email !== userEmail) {
+  //     return res.status(403).send({ message: 'forbedden user' });
+  //   }
+  //   //   const tokenEmail = req.user.email;
+  //   console.log(userEmail);
+  //   console.log(tokenEmail);
+
+  //   if (userEmail !== tokenEmail) {
+  //     return res.status(403).send({ message: 'forbiddeen access' });
+  //   }
   let query = {};
-  if (email) {
+  if (userEmail) {
     query = {
-      email,
+      email: userEmail,
     };
   }
   const result = await wishlistCollection.find(query).toArray();
@@ -127,6 +191,7 @@ app.delete('/api/blog/wishlists/:id', async (req, res) => {
 
 app.post('/api/blog/wishlist', async (req, res) => {
   const data = req.body;
+  console.log(data);
   const result = await wishlistCollection.insertOne(data);
   res.send(result);
 });
@@ -151,6 +216,36 @@ app.post('/api/blog/comment', async (req, res) => {
   const data = req.body;
   const result = await commentCollection.insertOne(data);
   res.send(result);
+});
+
+// app.post('/api/auth/acess-token', async (req, res) => {
+//   const user = req.body;
+//   console.log(user);
+
+//   const token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: '1h' });
+
+//   console.log(token);
+//   res
+//     .cookie('token', token, {
+//       httpOnly: true,
+//       secure: true,
+//       sameSite: 'none',
+//     })
+//     .send({ success: true });
+//   //   res
+//   //     .cookie('token', token, {
+//   //       httpOnly: true,
+//   //       secure: true,
+//   //       sameSite: 'none',
+//   //     })
+//   //     .send({ success: true });
+// });
+
+app.post('/api/auth/logout', async (req, res) => {
+  const email = req.body;
+  console.log(email);
+
+  res.clearCookie('token', { maxAge: 0 }).send({ suceeess: true });
 });
 
 app.listen(port, () => {

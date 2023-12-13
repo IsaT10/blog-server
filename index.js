@@ -121,6 +121,27 @@ app.post('/api/blogs', async (req, res) => {
   res.send(result);
 });
 
+app.patch('/api/blog', async (req, res) => {
+  try {
+    const { id } = req.query;
+    const { rating, reviewedPeople } = req.body;
+    console.log(id, rating);
+    console.log(reviewedPeople);
+    const query = { _id: new ObjectId(id) };
+    const updateDoc = {
+      $set: {
+        rating,
+        reviewedPeople: reviewedPeople,
+      },
+    };
+
+    const result = await blogsCollection.updateOne(query, updateDoc);
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 //update blog
 
 app.put('/api/blogs/:id', async (req, res) => {
@@ -138,7 +159,7 @@ app.put('/api/blogs/:id', async (req, res) => {
       image: updateBlog.image,
     },
   };
-  console.log(updateBlog);
+  // console.log(updateBlog);
   const result = await blogsCollection.updateOne(query, blog, options);
   res.send(result);
 });
@@ -147,7 +168,7 @@ app.put('/api/blogs/:id', async (req, res) => {
 
 app.get('/api/blog/wishlist', async (req, res) => {
   const userEmail = req.query?.email;
-  console.log(userEmail);
+  // console.log(userEmail);
   //   console.log('cock', req.cookies);
   //   console.log('owner', req.user);
 
